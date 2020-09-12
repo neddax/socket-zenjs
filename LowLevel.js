@@ -1,17 +1,13 @@
-import { Server } from "http";
-import WS from "ws";
-import WsConnection, { Message } from "./WsConnection";
+const WS = require("ws");
+const WsConnection = require("./WsConnection");
 
-export default class LowLevel {
-  ws: WS.Server;
-
-  private _connections: WsConnection[];
-
+module.exports = class LowLevel {
   constructor() {
     this._connections = [];
+    this.ws = null;
   }
 
-  initLL(server: Server) {
+  initLL(server) {
     this.ws = new WS.Server({ server });
     this.ws.on("connection", (socket) => this.handleConnection(socket));
     return this;
@@ -21,15 +17,15 @@ export default class LowLevel {
     return this._connections;
   }
 
-  private _removeConnection(connection: WsConnection) {
+  _removeConnection(connection) {
     this._connections = this._connections.filter((c) => c !== connection);
   }
 
-  private _addConnection(connection: WsConnection) {
+  _addConnection(connection) {
     this._connections = this._connections.concat(connection);
   }
 
-  private handleConnection(socket: WS) {
+  handleConnection(socket) {
     const req = new WsConnection(
       socket,
       this._onMessage,
@@ -40,23 +36,23 @@ export default class LowLevel {
     this._addConnection(req);
   }
 
-  _onMessage(_: WsConnection, { data, url }: Message) {
+  _onMessage(_, { data, url }) {
     console.info(`[${url}]`);
     console.info(data);
   }
 
-  _onError(_: WsConnection, error: Error) {
+  _onError(_, error) {
     console.error("ERROR!", error);
   }
 
-  _onClose(connection: WsConnection, code: number, reason: string) {
+  _onClose(connection, code, reason) {
     console.info("CLOSING!");
     console.info(`[code][${code}] Reason\n${reason}`);
 
     this._cleanUpClose(connection);
   }
 
-  private _cleanUpClose(connection: WsConnection) {
+  _cleanUpClose(connection) {
     this._removeConnection(connection);
   }
-}
+};

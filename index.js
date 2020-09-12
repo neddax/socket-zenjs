@@ -1,41 +1,28 @@
-import LowLevel from "./LowLevel";
-import querystring from "querystring";
-import { Server } from "http";
-import WsConnection from "./WsConnection";
-import {
-  SocketServerMessageHandler,
-  SocketServerRequest,
-  CloseHandler,
-  ErrorHandler,
-  Message,
-} from "./types";
+const LowLevel = require("./LowLevel");
+const querystring = require("querystring");
 
-export default class SocketServer extends LowLevel {
-  private _catch: SocketServerMessageHandler;
-
-  routes: Record<string, SocketServerMessageHandler>;
-
+module.exports = class SocketServer extends LowLevel {
   constructor() {
     super();
     this.routes = {};
   }
 
-  initSocket(server: Server) {
+  initSocket(server) {
     this.initLL(server);
   }
 
-  on(url: string, handle: SocketServerMessageHandler) {
+  on(url, handle) {
     this.routes[url] = handle;
     return this;
   }
 
-  catch(handle: SocketServerMessageHandler) {
+  catch(handle) {
     this._catch = handle;
     return this;
   }
 
-  _onMessage = (connection: WsConnection, { data, url }: Message) => {
-    const request: SocketServerRequest = {
+  _onMessage = (connection, { data, url }) => {
+    const request = {
       data: data,
       url: this._cleanURL(url),
       query: this._parseURL(url),
@@ -49,18 +36,18 @@ export default class SocketServer extends LowLevel {
     }
   };
 
-  onError(handler: ErrorHandler) {
+  onError(handler) {
     this._onError = handler;
     return this;
   }
 
-  onClose(handler: CloseHandler) {
+  onClose(handler) {
     this._onClose = handler;
     return this;
   }
 
-  private _parseURL(str: string) {
-    let query: querystring.ParsedUrlQuery = {};
+  _parseURL(str) {
+    let query = {};
 
     const index = str.indexOf("?");
 
@@ -72,7 +59,7 @@ export default class SocketServer extends LowLevel {
     return query;
   }
 
-  private _cleanURL(str: string) {
+  _cleanURL(str) {
     const index = str.indexOf("?");
 
     if (index !== -1) {
@@ -81,4 +68,4 @@ export default class SocketServer extends LowLevel {
 
     return str;
   }
-}
+};

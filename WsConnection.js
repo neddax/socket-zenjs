@@ -1,17 +1,8 @@
-import WS from "ws";
-import { CloseHandler, ErrorHandler, Message, MessageHandler } from "./types";
+module.exports = class WsConnection {
+  // private _socket: WS;
+  // closed: boolean;
 
-export default class WsConnection {
-  private _socket: WS;
-
-  closed: boolean;
-
-  constructor(
-    socket: WS,
-    messageHandler: MessageHandler,
-    errorHandler: ErrorHandler,
-    closeHandler: CloseHandler
-  ) {
+  constructor(socket, messageHandler, errorHandler, closeHandler) {
     this.closed = false;
     this._socket = socket;
 
@@ -22,7 +13,7 @@ export default class WsConnection {
     this._socket.on("message", (data) => this._onmessage(data, messageHandler));
   }
 
-  send(status: number, data: any = "") {
+  send(status, data = "") {
     if (status && data) {
       this._socket.send(
         JSON.stringify({
@@ -37,17 +28,17 @@ export default class WsConnection {
     throw new Error("send MUST have truthy a status[1]");
   }
 
-  private _onerror(err: Error, errorHandler: ErrorHandler) {
+  _onerror(err, errorHandler) {
     errorHandler(this, err);
   }
 
-  private _onclose(code: number, reason: string, closeHandler: CloseHandler) {
+  _onclose(code, reason, closeHandler) {
     closeHandler(this, code, reason);
     this.closed = true;
   }
 
-  private _onmessage(data: WS.Data, messageHandler: MessageHandler) {
-    let json: Message;
+  _onmessage(data, messageHandler) {
+    let json;
 
     try {
       json = JSON.parse(data.toString());
@@ -72,4 +63,4 @@ export default class WsConnection {
         'Object json is missing .url as type string "{url: string}"'
       );
   }
-}
+};
