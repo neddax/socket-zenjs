@@ -25,7 +25,7 @@
  *~ loaded outside a module loader environment, declare that global here.
  *~ Otherwise, delete this declaration.
  */
-export as namespace myClassLib;
+export as namespace SocketZenjs;
 
 /*~ This declaration specifies that the class constructor function
  *~ is the exported object from the file
@@ -36,12 +36,14 @@ import LowLevel from "./LowLevel";
 import querystring from "querystring";
 import { Server } from "http";
 import WsConnection from "./WsConnection";
+import Router from "./router";
 
 /*~ Write your module's methods and properties in this class */
 declare class SocketServer extends LowLevel {
   private _catch: SocketServer.SocketServerMessageHandler;
 
-  routes: Record<string, SocketServer.SocketServerMessageHandler>;
+  private _routes: Record<string, SocketServer.SocketServerMessageHandler>;
+  private _beforeMiddleWare: SocketServer.BeforeMiddleWareHandler[];
 
   constructor();
 
@@ -51,6 +53,10 @@ declare class SocketServer extends LowLevel {
     url: string,
     handle: SocketServer.SocketServerMessageHandler
   ): SocketServer;
+
+  addRouter(router: Router): SocketServer;
+
+  use(handle: SocketServer.BeforeMiddleWareHandler): SocketServer;
 
   catch(handle: SocketServer.SocketServerMessageHandler): SocketServer;
 
@@ -66,6 +72,8 @@ declare class SocketServer extends LowLevel {
   private _parseURL(str: string): querystring.ParsedUrlQuery;
 
   private _cleanURL(str: string): string;
+
+  Router(base): Router;
 }
 
 /*~ If you want to expose types from your module as well, you can
@@ -77,6 +85,11 @@ declare class SocketServer extends LowLevel {
  *~   import * as x from '[~THE MODULE~]'; // WRONG! DO NOT DO THIS!
  */
 declare namespace SocketServer {
+  export type BeforeMiddleWareHandler = (
+    connection: WsConnection,
+    request: SocketServer.SocketServerRequest,
+    stop: () => void
+  ) => void;
   export interface SocketServerRequest extends WsConnection.Message {
     query: querystring.ParsedUrlQuery;
   }

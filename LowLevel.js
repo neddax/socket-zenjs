@@ -48,11 +48,5 @@ module.exports = class LowLevel {
   _onClose(connection, code, reason) {
     console.info("CLOSING!");
     console.info(`[code][${code}] Reason\n${reason}`);
-
-    this._cleanUpClose(connection);
-  }
-
-  _cleanUpClose(connection) {
-    this._removeConnection(connection);
   }
 };

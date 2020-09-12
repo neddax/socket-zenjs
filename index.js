@@ -1,10 +1,12 @@
 const LowLevel = require("./LowLevel");
 const querystring = require("querystring");
+const Router = require("./router");
 
 module.exports = class SocketServer extends LowLevel {
   constructor() {
     super();
-    this.routes = {};
+    this._routes = {};
+    this._beforeMiddleWare = [];
   }
 
   initSocket(server) {
@@ -12,12 +14,24 @@ module.exports = class SocketServer extends LowLevel {
   }
 
   on(url, handle) {
-    this.routes[url] = handle;
+    this._routes[url] = handle;
     return this;
   }
 
   catch(handle) {
     this._catch = handle;
+    return this;
+  }
+
+  addRouter(router) {
+    for (const path in router._routes)
+      this._routes[router._base + path] = router._routes[path];
+
+    return this;
+  }
+
+  use(handle) {
+    this._beforeMiddleWare.push(handle);
     return this;
   }
 
@@ -28,8 +42,19 @@ module.exports = class SocketServer extends LowLevel {
       query: this._parseURL(url),
     };
 
-    if (this.routes[request.url]) {
-      this.routes[request.url](connection, request);
+    if (this._routes[request.url]) {
+      let dontRespond = false;
+
+      const stop = () => {
+        dontRespond = true;
+      };
+
+      for (const middleWare of this._beforeMiddleWare) {
+        middleWare(connection, request, stop);
+        if (dontRespond) return;
+      }
+
+      this._routes[request.url](connection, request);
     } else {
       if (this.catch) this._catch(connection, request);
       else connection.send(404, "Route not found");
@@ -52,8 +77,7 @@ module.exports = class SocketServer extends LowLevel {
     const index = str.indexOf("?");
 
     if (index !== -1) {
-      console.log("str.slice(index)", str.slice(index + 1));
-      query = querystring.parse(str.slice(index));
+      query = querystring.parse(str.slice(index + 1));
     }
 
     return query;
@@ -67,5 +91,9 @@ module.exports = class SocketServer extends LowLevel {
     }
 
     return str;
+  }
+
+  Router(base) {
+    return new Router(base);
   }
 };
