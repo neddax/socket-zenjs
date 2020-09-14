@@ -65,6 +65,8 @@ declare class SocketServer extends LowLevel {
     { data, url }: WsConnection.Message
   ): SocketServer;
 
+  onConnection(handler: WsConnection.ConnectionHandler): SocketServer;
+
   onError(handler: WsConnection.ErrorHandler): SocketServer;
 
   onClose(handler: WsConnection.CloseHandler): SocketServer;

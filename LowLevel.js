@@ -30,10 +30,32 @@ module.exports = class LowLevel {
       socket,
       this._onMessage,
       this._onError,
-      this._onClose
+      this._onClose,
+      this._onConnection
     );
 
     this._addConnection(req);
+  }
+
+  sendTo(uuid, status, data) {
+    const index = this._connections.findIndex(({ uuid: id }) => uuid === id);
+    if (index !== -1) {
+      this._connections[index].send(status, data);
+    }
+
+    return this;
+  }
+
+  sendAll(status, data) {
+    for (const connection of this._connections) {
+      connection.send(status, data);
+    }
+
+    return this;
+  }
+
+  _onConnection(_) {
+    console.info("Connection made!");
   }
 
   _onMessage(_, { data, url }) {

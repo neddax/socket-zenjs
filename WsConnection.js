@@ -1,10 +1,23 @@
+const generateUUID = require("./generateUUID");
+
 module.exports = class WsConnection {
   // private _socket: WS;
   // closed: boolean;
 
-  constructor(socket, messageHandler, errorHandler, closeHandler) {
+  constructor(
+    socket,
+    messageHandler,
+    errorHandler,
+    closeHandler,
+    onConnectionHandler
+  ) {
+    this.uuid = generateUUID();
     this.closed = false;
     this._socket = socket;
+
+    this._socket.on("connection", () =>
+      this._onConnection(onConnectionHandler)
+    );
 
     this._socket.on("close", (code, reason) =>
       this._onclose(code, reason, closeHandler)
@@ -25,7 +38,11 @@ module.exports = class WsConnection {
       return this;
     }
 
-    throw new Error("send MUST have truthy a status[1]");
+    console.error("send MUST have truthy a status[1]");
+  }
+
+  _onConnection(handler) {
+    handler(this);
   }
 
   _onerror(err, errorHandler) {

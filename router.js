@@ -25,7 +25,7 @@ module.exports = class Router {
 
   addRouter(router) {
     for (const path in router._routes)
-      this._routes[router._base + path] = router._routes[path];
+      this._routes[router._base + path] = this._newRoute(router._routes[path]);
 
     return this;
   }

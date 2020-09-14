@@ -11,18 +11,23 @@ import WsConnection from "./WsConnection";
 declare class LowLevel {
   ws: WS.Server;
   private _connections: WsConnection[];
+  get getConnections(): WsConnection[];
 
   constructor();
 
   initLL(server: Server): LowLevel;
 
-  get getConnections(): WsConnection[];
+  sendAll(status: number, data: any): LowLevel;
+
+  sendTo(uuid: string, status: number, data: any): LowLevel;
 
   _onMessage(_: WsConnection, { data, url }: WsConnection.Message): void;
 
   _onError(_: WsConnection, error: Error): void;
 
   _onClose(connection: WsConnection, code: number, reason: string): void;
+
+  private _onConnection(connection: WsConnection): void;
 
   private _removeConnection(connection: WsConnection): void;
 

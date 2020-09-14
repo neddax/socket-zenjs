@@ -1,7 +1,6 @@
 const LowLevel = require("./LowLevel");
 const querystring = require("querystring");
 const Router = require("./router");
-
 module.exports = class SocketServer extends LowLevel {
   constructor() {
     super();
@@ -71,6 +70,11 @@ module.exports = class SocketServer extends LowLevel {
     return this;
   }
 
+  onConnection(handler) {
+    this._onConnection = handler;
+    return this;
+  }
+
   _parseURL(str) {
     let query = {};
 
@@ -93,7 +97,7 @@ module.exports = class SocketServer extends LowLevel {
     return str;
   }
 
-  Router(base) {
+  static Router(base) {
     return new Router(base);
   }
 };

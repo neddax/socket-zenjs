@@ -38,16 +38,21 @@ import WS from "ws";
 declare class WsConnection {
   private _socket: WS;
   closed: boolean;
+  uuid: string;
 
   constructor(
     socket: WS,
     messageHandler: WsConnection.MessageHandler,
     errorHandler: WsConnection.ErrorHandler,
-    closeHandler: WsConnection.CloseHandler
+    closeHandler: WsConnection.CloseHandler,
+    connectionHandler: WsConnection.ConnectionHandler
   );
 
   send(status: number, data: any): WsConnection;
 
+  private _onConnection(
+    connectionHandler: WsConnection.ConnectionHandler
+  ): void;
   private _onerror(err: Error, errorHandler: WsConnection.ErrorHandler): void;
   private _onclose(
     code: number,
@@ -74,10 +79,13 @@ declare namespace WsConnection {
     url: string;
     data: any;
   }
+  export type ConnectionHandler = (connection: WsConnection) => void;
+
   export type MessageHandler = (
     connection: WsConnection,
     data: Message
   ) => void;
+
   export type ErrorHandler = (connection: WsConnection, error: Error) => void;
   export type CloseHandler = (
     connection: WsConnection,
