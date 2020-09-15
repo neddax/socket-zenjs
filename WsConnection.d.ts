@@ -39,6 +39,7 @@ declare class WsConnection {
   private _socket: WS;
   closed: boolean;
   uuid: string;
+  close: () => void;
 
   constructor(
     socket: WS,

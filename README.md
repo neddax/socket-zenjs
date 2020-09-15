@@ -23,7 +23,7 @@ Example With base "http" package.
 
 ```ts
 import http from "http";
-import Zenjs from "./socket-zenjs";
+import Zenjs from "socket-zenjs";
 
 const server = http.createServer((req, res) => {}).listen(8080);
 
@@ -67,7 +67,7 @@ const socketServer = new Zenjs()
         Routes:
           *: requires a 'authentication' field on the message object
             ex:
-              {
+              {authentication
                 url: string:
                 data: any;
                 authentication: string;

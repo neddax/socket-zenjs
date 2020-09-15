@@ -14,6 +14,7 @@ module.exports = class WsConnection {
     this.uuid = generateUUID();
     this.closed = false;
     this._socket = socket;
+    this.close = () => this._socket.close();
 
     this._socket.on("connection", () =>
       this._onConnection(onConnectionHandler)
@@ -59,6 +60,11 @@ module.exports = class WsConnection {
 
     try {
       json = JSON.parse(data.toString());
+      if (typeof json !== "object")
+        this.send(
+          400,
+          'You must send a object that looks like: "{url: string, data: !undefined}"'
+        );
     } catch (err) {
       this.send(
         400,
