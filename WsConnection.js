@@ -56,15 +56,10 @@ module.exports = class WsConnection {
   }
 
   _onmessage(data, messageHandler) {
-    let json;
+    let json = {};
 
     try {
       json = JSON.parse(data.toString());
-      if (typeof json !== "object")
-        this.send(
-          400,
-          'You must send a object that looks like: "{url: string, data: !undefined}"'
-        );
     } catch (err) {
       this.send(
         400,
