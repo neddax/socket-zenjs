@@ -67,18 +67,18 @@ module.exports = class WsConnection {
       );
     }
 
-    if (typeof json.url === "string") {
-      if (typeof json.data !== undefined) {
-        messageHandler(this, json);
-      } else
-        this.send(
-          400,
-          'Object json is missing .data as type any && !undefined "{data: [] | {} | "" | null}" '
-        );
-    } else
-      this.send(
-        400,
-        'Object json is missing .url as type string "{url: string}"'
-      );
+    if (typeof json !== "string") {
+      if (typeof json.url === "string") {
+        if (json.data !== undefined) {
+          messageHandler(this, json);
+        } else
+          this.send(
+            400,
+            'missing .data as type any && !undefined "{data: [] | {} | "" | null}" '
+          );
+      } else this.send(400, 'missing .url as type string "{url: string}"');
+    } else {
+      this.send(400, "failed to parse message into an object");
+    }
   }
 };

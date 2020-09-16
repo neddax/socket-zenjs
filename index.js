@@ -1,6 +1,9 @@
 const LowLevel = require("./LowLevel");
 const querystring = require("querystring");
 const Router = require("./router");
+
+const copy = (obj) => JSON.parse(JSON.stringify(obj));
+
 module.exports = class SocketServer extends LowLevel {
   constructor() {
     super();
@@ -34,11 +37,17 @@ module.exports = class SocketServer extends LowLevel {
     return this;
   }
 
-  _onMessage = (connection, { data, url }) => {
+  _onMessage = (connection, req) => {
+    const copyOfReq = copy(req);
+    delete copyOfReq.url;
+    delete copyOfReq.data;
+    delete copyOfReq.query;
+
     const request = {
-      data: data,
-      url: this._cleanURL(url),
-      query: this._parseURL(url),
+      ...copyOfReq,
+      data: req.data,
+      url: this._cleanURL(req.url),
+      query: this._parseURL(req.url),
     };
 
     if (this._routes[request.url]) {
