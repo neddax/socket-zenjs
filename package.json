@@ -1,6 +1,6 @@
 {
   "name": "socket-zenjs",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "A Express/WS Nodejs framework",
   "main": "index.js",
   "types": "./index.d.ts",
@@ -13,7 +13,7 @@
   "url": "https://github.com/neddax/socket-zen",
   "devDependencies": {
     "@types/express": "^4.17.8",
-    "@types/node": "^14.6.4",
+    "@types/node": "^14.10.3",
     "@types/ws": "^7.2.6",
     "express": "^4.17.1",
     "nodemon": "^2.0.4",
