@@ -64,6 +64,8 @@ declare class Zenjs extends LowLevel {
 
   onConnection(handler: ZenSocketConnection.ConnectionHandler): this;
 
+  private _onConnection(connection: ZenSocketConnection): void;
+
   onError(handler: ZenSocketConnection.ErrorHandler): this;
 
   onClose(handler: ZenSocketConnection.CloseHandler): this;

@@ -35,7 +35,7 @@ module.exports = class LowLevel {
       socket,
       this._onMessage,
       this._onError,
-      this._onCl_injectionsose,
+      this._onClose,
       this._onConnection
     );
 
