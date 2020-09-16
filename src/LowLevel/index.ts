@@ -1,13 +1,17 @@
-const WS = require("ws");
-const ZenSocketConnection = require("./ZenSocketConnection");
+import * as WS from "ws";
+import Socket, { Message } from "../Socket";
+import * as http from "http";
 
-module.exports = class LowLevel {
+export default class LowLevel {
+  private _connections: Socket[];
+  ws: WS.Server | null;
+
   constructor() {
     this._connections = [];
     this.ws = null;
   }
 
-  initLL(server) {
+  initLL(server: http.Server) {
     this.ws = new WS.Server({ server });
     this.ws.on("connection", (socket) => this.handleConnection(socket));
     return this;
@@ -17,16 +21,16 @@ module.exports = class LowLevel {
     return this._connections;
   }
 
-  _removeConnection(connection) {
+  _removeConnection(connection: Socket) {
     this._connections = this._connections.filter((c) => c !== connection);
   }
 
-  _addConnection(connection) {
+  _addConnection(connection: Socket) {
     this._connections = this._connections.concat(connection);
   }
 
-  handleConnection(socket) {
-    const req = new ZenSocketConnection(
+  handleConnection(socket: WS) {
+    const req = new Socket(
       socket,
       this._onMessage,
       this._onError,
@@ -37,7 +41,7 @@ module.exports = class LowLevel {
     this._addConnection(req);
   }
 
-  sendTo(uuid, status, data) {
+  sendTo(uuid: string, status: number, data: any) {
     const index = this._connections.findIndex(({ uuid: id }) => uuid === id);
     if (index !== -1) {
       this._connections[index].send(status, data);
@@ -46,7 +50,7 @@ module.exports = class LowLevel {
     return this;
   }
 
-  sendAll(status, data) {
+  sendAll(status: number, data: any) {
     for (const connection of this._connections) {
       connection.send(status, data);
     }
@@ -54,21 +58,21 @@ module.exports = class LowLevel {
     return this;
   }
 
-  _onConnection(_) {
+  _onConnection(_: Socket) {
     console.info("Connection made!");
   }
 
-  _onMessage(_, { data, url }) {
+  _onMessage(_: Socket, { data, url }: Message) {
     console.info(`[${url}]`);
     console.info(data);
   }
 
-  _onError(_, error) {
+  _onError(_: Socket, error: Error) {
     console.error("ERROR!", error);
   }
 
-  _onClose(connection, code, reason) {
+  _onClose(connection: Socket, code: number, reason: string) {
     console.info("CLOSING!");
     console.info(`[code][${code}] Reason\n${reason}`);
   }
-};
+}

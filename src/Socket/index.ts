@@ -1,15 +1,33 @@
-const generateUUID = require("./generateUUID");
+import * as WS from "ws";
+import generateUUID from "../generateUUID";
 
-module.exports = class ZenSocketConnection {
-  // private _socket: WS;
-  // closed: boolean;
+export interface Message {
+  url: string;
+  data: any;
+}
+export type ConnectionHandler = (connection: Socket) => void;
+
+export type MessageHandler = (connection: Socket, data: Message) => void;
+
+export type ErrorHandler = (connection: Socket, error: Error) => void;
+export type CloseHandler = (
+  connection: Socket,
+  code: number,
+  reason: string
+) => void;
+
+export default class Socket {
+  private _socket: WS;
+  closed: boolean;
+  uuid: string;
+  close: () => void;
 
   constructor(
-    socket,
-    messageHandler,
-    errorHandler,
-    closeHandler,
-    onConnectionHandler
+    socket: WS,
+    messageHandler: MessageHandler,
+    errorHandler: ErrorHandler,
+    closeHandler: CloseHandler,
+    onConnectionHandler: ConnectionHandler
   ) {
     this.uuid = generateUUID();
     this.closed = false;
@@ -27,7 +45,7 @@ module.exports = class ZenSocketConnection {
     this._socket.on("message", (data) => this._onmessage(data, messageHandler));
   }
 
-  send(status, data = "") {
+  send(status: number, data = "") {
     if (status && data) {
       this._socket.send(
         JSON.stringify({
@@ -42,21 +60,21 @@ module.exports = class ZenSocketConnection {
     console.error("send MUST have truthy a status[1]");
   }
 
-  _onConnection(handler) {
+  _onConnection(handler: ConnectionHandler) {
     handler(this);
   }
 
-  _onerror(err, errorHandler) {
+  _onerror(err: Error, errorHandler: ErrorHandler) {
     errorHandler(this, err);
   }
 
-  _onclose(code, reason, closeHandler) {
+  _onclose(code: number, reason: string, closeHandler: CloseHandler) {
     closeHandler(this, code, reason);
     this.closed = true;
   }
 
-  _onmessage(data, messageHandler) {
-    let json = {};
+  _onmessage(data: WS.Data, messageHandler: MessageHandler) {
+    let json: Record<string, any> = {};
 
     try {
       json = JSON.parse(data.toString());
@@ -70,7 +88,7 @@ module.exports = class ZenSocketConnection {
     if (typeof json !== "string") {
       if (typeof json.url === "string") {
         if (json.data !== undefined) {
-          messageHandler(this, json);
+          messageHandler(this, json as Message);
         } else
           this.send(
             400,
@@ -81,4 +99,4 @@ module.exports = class ZenSocketConnection {
       this.send(400, "failed to parse message into an object");
     }
   }
-};
+}
