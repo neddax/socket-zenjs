@@ -8,6 +8,7 @@ import Socket, {
   Message,
 } from "./Socket";
 import * as http from "http";
+import { throws } from "assert";
 
 const copy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
@@ -51,8 +52,18 @@ export default class Zenjs<
     this._beforeMiddleWare = [];
   }
 
+  updateInjection<T extends keyof Injections>(key: T, value: Injections[T]) {
+    this._injections[key] = value;
+    return this;
+  }
+
+  /**
+   * @param server http.Server
+   * @returns this
+   */
   initSocket(server: http.Server) {
     this.initLL(server);
+    return this;
   }
 
   on(url: string, handle: FinalMessageHandler<Injections>) {
