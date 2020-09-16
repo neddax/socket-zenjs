@@ -39,13 +39,15 @@ import ZenSocketConnection from "./ZenSocketConnection";
 import Router from "./router";
 
 /*~ Write your module's methods and properties in this class */
-declare class Zenjs extends LowLevel {
+declare class Zenjs<Injections extends Record<string, any>> extends LowLevel {
   private _catch: Zenjs.FinalMessageHandler;
 
   private _routes: Record<string, Zenjs.FinalMessageHandler>;
   private _beforeMiddleWare: Zenjs.BeforeMiddleWareHandler[];
 
-  constructor();
+  private _injections: Injections;
+
+  constructor(injections: Injections);
 
   initSocket(server: Server): this;
 
@@ -90,7 +92,7 @@ declare namespace Zenjs {
     connection: ZenSocketConnection,
     request: Zenjs.SocketServerRequest,
     stop: () => void,
-    injections: any[]
+    injections
   ) => void;
   export interface SocketServerRequest extends ZenSocketConnection.Message {
     query: querystring.ParsedUrlQuery;

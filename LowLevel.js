@@ -4,7 +4,6 @@ const ZenSocketConnection = require("./ZenSocketConnection");
 module.exports = class LowLevel {
   constructor() {
     this._connections = [];
-    this._injections = [];
     this.ws = null;
   }
 
@@ -16,10 +15,6 @@ module.exports = class LowLevel {
 
   get getConnections() {
     return this._connections;
-  }
-
-  get getInjections() {
-    return this._injections;
   }
 
   _removeConnection(connection) {
@@ -56,11 +51,6 @@ module.exports = class LowLevel {
       connection.send(status, data);
     }
 
-    return this;
-  }
-
-  inject(anything) {
-    this._injections = this._injections.concat(anything);
     return this;
   }
 

@@ -13,9 +13,6 @@ declare class LowLevel {
   private _connections: ZenSocketConnection[];
   get getConnections(): ZenSocketConnection[];
 
-  private _injections: any[];
-  get getInjections(): any[];
-
   constructor();
 
   initLL(server: Server): this;
@@ -23,8 +20,6 @@ declare class LowLevel {
   sendAll(status: number, data: any): this;
 
   sendTo(uuid: string, status: number, data: any): this;
-
-  inject(anything: any): this;
 
   _onMessage(
     _: ZenSocketConnection,

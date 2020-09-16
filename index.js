@@ -5,8 +5,10 @@ const Router = require("./router");
 const copy = (obj) => JSON.parse(JSON.stringify(obj));
 
 module.exports = class Zenjs extends LowLevel {
-  constructor() {
+  constructor(injections) {
     super();
+
+    this._injections = injections;
     this._routes = {};
     this._beforeMiddleWare = [];
   }
