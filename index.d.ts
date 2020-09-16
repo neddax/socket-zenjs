@@ -40,25 +40,22 @@ import Router from "./router";
 
 /*~ Write your module's methods and properties in this class */
 declare class SocketServer extends LowLevel {
-  private _catch: SocketServer.SocketServerMessageHandler;
+  private _catch: SocketServer.FinalMessageHandler;
 
-  private _routes: Record<string, SocketServer.SocketServerMessageHandler>;
+  private _routes: Record<string, SocketServer.FinalMessageHandler>;
   private _beforeMiddleWare: SocketServer.BeforeMiddleWareHandler[];
 
   constructor();
 
   initSocket(server: Server): SocketServer;
 
-  on(
-    url: string,
-    handle: SocketServer.SocketServerMessageHandler
-  ): SocketServer;
+  on(url: string, handle: SocketServer.FinalMessageHandler): SocketServer;
 
   addRouter(router: Router): SocketServer;
 
   use(handle: SocketServer.BeforeMiddleWareHandler): SocketServer;
 
-  catch(handle: SocketServer.SocketServerMessageHandler): SocketServer;
+  catch(handle: SocketServer.FinalMessageHandler): SocketServer;
 
   _onMessage(
     connection: WsConnection,
@@ -90,14 +87,16 @@ declare namespace SocketServer {
   export type BeforeMiddleWareHandler = (
     connection: WsConnection,
     request: SocketServer.SocketServerRequest,
-    stop: () => void
+    stop: () => void,
+    injections: any[]
   ) => void;
   export interface SocketServerRequest extends WsConnection.Message {
     query: querystring.ParsedUrlQuery;
   }
 
-  export type SocketServerMessageHandler = (
+  export type FinalMessageHandler = (
     connection: WsConnection,
-    request: SocketServer.SocketServerRequest
+    request: SocketServer.SocketServerRequest,
+    injections: any[]
   ) => void;
 }

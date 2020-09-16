@@ -87,6 +87,12 @@ declare namespace WsConnection {
     data: Message
   ) => void;
 
+  export type FinalMessageHandler = (
+    connection: WsConnection,
+    data: Message,
+    injections: []
+  ) => void;
+
   export type ErrorHandler = (connection: WsConnection, error: Error) => void;
   export type CloseHandler = (
     connection: WsConnection,

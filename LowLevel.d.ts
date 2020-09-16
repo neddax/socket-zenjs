@@ -13,6 +13,9 @@ declare class LowLevel {
   private _connections: WsConnection[];
   get getConnections(): WsConnection[];
 
+  private _injections: any[];
+  get getInjections(): any[];
+
   constructor();
 
   initLL(server: Server): LowLevel;
@@ -20,6 +23,8 @@ declare class LowLevel {
   sendAll(status: number, data: any): LowLevel;
 
   sendTo(uuid: string, status: number, data: any): LowLevel;
+
+  inject(anything: any): LowLevel;
 
   _onMessage(_: WsConnection, { data, url }: WsConnection.Message): void;
 

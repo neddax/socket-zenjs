@@ -58,13 +58,13 @@ module.exports = class SocketServer extends LowLevel {
       };
 
       for (const middleWare of this._beforeMiddleWare) {
-        middleWare(connection, request, stop);
+        middleWare(connection, request, stop, this.getInjections);
         if (dontRespond) return;
       }
 
-      this._routes[request.url](connection, request);
+      this._routes[request.url](connection, request, this.getInjections);
     } else {
-      if (this.catch) this._catch(connection, request);
+      if (this.catch) this._catch(connection, request, this.getInjections);
       else connection.send(404, "Route not found");
     }
   };
