@@ -18,13 +18,13 @@ declare class LowLevel {
 
   constructor();
 
-  initLL(server: Server): LowLevel;
+  initLL(server: Server): this;
 
-  sendAll(status: number, data: any): LowLevel;
+  sendAll(status: number, data: any): this;
 
-  sendTo(uuid: string, status: number, data: any): LowLevel;
+  sendTo(uuid: string, status: number, data: any): this;
 
-  inject(anything: any): LowLevel;
+  inject(anything: any): this;
 
   _onMessage(_: WsConnection, { data, url }: WsConnection.Message): void;
 

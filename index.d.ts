@@ -30,7 +30,7 @@ export as namespace SocketZenjs;
 /*~ This declaration specifies that the class constructor function
  *~ is the exported object from the file
  */
-export = SocketServer;
+export = this;
 
 import LowLevel from "./LowLevel";
 import querystring from "querystring";
@@ -47,26 +47,26 @@ declare class SocketServer extends LowLevel {
 
   constructor();
 
-  initSocket(server: Server): SocketServer;
+  initSocket(server: Server): this;
 
-  on(url: string, handle: SocketServer.FinalMessageHandler): SocketServer;
+  on(url: string, handle: SocketServer.FinalMessageHandler): this;
 
-  addRouter(router: Router): SocketServer;
+  addRouter(router: Router): this;
 
-  use(handle: SocketServer.BeforeMiddleWareHandler): SocketServer;
+  use(handle: SocketServer.BeforeMiddleWareHandler): this;
 
-  catch(handle: SocketServer.FinalMessageHandler): SocketServer;
+  catch(handle: SocketServer.FinalMessageHandler): this;
 
   _onMessage(
     connection: WsConnection,
     { data, url }: WsConnection.Message
-  ): SocketServer;
+  ): this;
 
-  onConnection(handler: WsConnection.ConnectionHandler): SocketServer;
+  onConnection(handler: WsConnection.ConnectionHandler): this;
 
-  onError(handler: WsConnection.ErrorHandler): SocketServer;
+  onError(handler: WsConnection.ErrorHandler): this;
 
-  onClose(handler: WsConnection.CloseHandler): SocketServer;
+  onClose(handler: WsConnection.CloseHandler): this;
 
   private _parseURL(str: string): querystring.ParsedUrlQuery;
 
