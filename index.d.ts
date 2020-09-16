@@ -25,48 +25,48 @@
  *~ loaded outside a module loader environment, declare that global here.
  *~ Otherwise, delete this declaration.
  */
-export as namespace SocketZenjs;
+export as namespace Zenjs;
 
 /*~ This declaration specifies that the class constructor function
  *~ is the exported object from the file
  */
-export = this;
+export = Zenjs;
 
 import LowLevel from "./LowLevel";
 import querystring from "querystring";
 import { Server } from "http";
-import WsConnection from "./WsConnection";
+import ZenSocketConnection from "./ZenSocketConnection";
 import Router from "./router";
 
 /*~ Write your module's methods and properties in this class */
-declare class SocketServer extends LowLevel {
-  private _catch: SocketServer.FinalMessageHandler;
+declare class Zenjs extends LowLevel {
+  private _catch: Zenjs.FinalMessageHandler;
 
-  private _routes: Record<string, SocketServer.FinalMessageHandler>;
-  private _beforeMiddleWare: SocketServer.BeforeMiddleWareHandler[];
+  private _routes: Record<string, Zenjs.FinalMessageHandler>;
+  private _beforeMiddleWare: Zenjs.BeforeMiddleWareHandler[];
 
   constructor();
 
   initSocket(server: Server): this;
 
-  on(url: string, handle: SocketServer.FinalMessageHandler): this;
+  on(url: string, handle: Zenjs.FinalMessageHandler): this;
 
   addRouter(router: Router): this;
 
-  use(handle: SocketServer.BeforeMiddleWareHandler): this;
+  use(handle: Zenjs.BeforeMiddleWareHandler): this;
 
-  catch(handle: SocketServer.FinalMessageHandler): this;
+  catch(handle: Zenjs.FinalMessageHandler): this;
 
   _onMessage(
-    connection: WsConnection,
-    { data, url }: WsConnection.Message
+    connection: ZenSocketConnection,
+    { data, url }: ZenSocketConnection.Message
   ): this;
 
-  onConnection(handler: WsConnection.ConnectionHandler): this;
+  onConnection(handler: ZenSocketConnection.ConnectionHandler): this;
 
-  onError(handler: WsConnection.ErrorHandler): this;
+  onError(handler: ZenSocketConnection.ErrorHandler): this;
 
-  onClose(handler: WsConnection.CloseHandler): this;
+  onClose(handler: ZenSocketConnection.CloseHandler): this;
 
   private _parseURL(str: string): querystring.ParsedUrlQuery;
 
@@ -83,20 +83,20 @@ declare class SocketServer extends LowLevel {
  *~ --esModuleInterop is turned on:
  *~   import * as x from '[~THE MODULE~]'; // WRONG! DO NOT DO THIS!
  */
-declare namespace SocketServer {
+declare namespace Zenjs {
   export type BeforeMiddleWareHandler = (
-    connection: WsConnection,
-    request: SocketServer.SocketServerRequest,
+    connection: ZenSocketConnection,
+    request: Zenjs.SocketServerRequest,
     stop: () => void,
     injections: any[]
   ) => void;
-  export interface SocketServerRequest extends WsConnection.Message {
+  export interface SocketServerRequest extends ZenSocketConnection.Message {
     query: querystring.ParsedUrlQuery;
   }
 
   export type FinalMessageHandler = (
-    connection: WsConnection,
-    request: SocketServer.SocketServerRequest,
+    connection: ZenSocketConnection,
+    request: Zenjs.SocketServerRequest,
     injections: any[]
   ) => void;
 }

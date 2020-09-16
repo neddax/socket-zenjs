@@ -4,7 +4,7 @@ const Router = require("./router");
 
 const copy = (obj) => JSON.parse(JSON.stringify(obj));
 
-module.exports = class SocketServer extends LowLevel {
+module.exports = class Zenjs extends LowLevel {
   constructor() {
     super();
     this._routes = {};

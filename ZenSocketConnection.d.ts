@@ -21,21 +21,17 @@
 // https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
 // to understand common workarounds for this limitation of ES6 modules.
 
-/*~ If this module is a UMD module that exposes a global variable 'myClassLib' when
- *~ loaded outside a module loader environment, declare that global here.
- *~ Otherwise, delete this declaration.
- */
-export as namespace myClassLib;
+export as namespace ZenSocketConnection;
 
 /*~ This declaration specifies that the class constructor function
  *~ is the exported object from the file
  */
-export = WsConnection;
+export = ZenSocketConnection;
 
 import WS from "ws";
 
 /*~ Write your module's methods and properties in this class */
-declare class WsConnection {
+declare class ZenSocketConnection {
   private _socket: WS;
   closed: boolean;
   uuid: string;
@@ -43,27 +39,30 @@ declare class WsConnection {
 
   constructor(
     socket: WS,
-    messageHandler: WsConnection.MessageHandler,
-    errorHandler: WsConnection.ErrorHandler,
-    closeHandler: WsConnection.CloseHandler,
-    connectionHandler: WsConnection.ConnectionHandler
+    messageHandler: ZenSocketConnection.MessageHandler,
+    errorHandler: ZenSocketConnection.ErrorHandler,
+    closeHandler: ZenSocketConnection.CloseHandler,
+    connectionHandler: ZenSocketConnection.ConnectionHandler
   );
 
-  send(status: number, data: any): WsConnection;
+  send(status: number, data: any): ZenSocketConnection;
 
   private _onConnection(
-    connectionHandler: WsConnection.ConnectionHandler
+    connectionHandler: ZenSocketConnection.ConnectionHandler
   ): void;
-  private _onerror(err: Error, errorHandler: WsConnection.ErrorHandler): void;
+  private _onerror(
+    err: Error,
+    errorHandler: ZenSocketConnection.ErrorHandler
+  ): void;
   private _onclose(
     code: number,
     reason: string,
-    closeHandler: WsConnection.CloseHandler
+    closeHandler: ZenSocketConnection.CloseHandler
   ): void;
 
   private _onmessage(
     data: WS.Data,
-    messageHandler: WsConnection.MessageHandler
+    messageHandler: ZenSocketConnection.MessageHandler
   ): void;
 }
 
@@ -75,27 +74,30 @@ declare class WsConnection {
  *~ --esModuleInterop is turned on:
  *~   import * as x from '[~THE MODULE~]'; // WRONG! DO NOT DO THIS!
  */
-declare namespace WsConnection {
+declare namespace ZenSocketConnection {
   export interface Message {
     url: string;
     data: any;
   }
-  export type ConnectionHandler = (connection: WsConnection) => void;
+  export type ConnectionHandler = (connection: ZenSocketConnection) => void;
 
   export type MessageHandler = (
-    connection: WsConnection,
+    connection: ZenSocketConnection,
     data: Message
   ) => void;
 
   export type FinalMessageHandler = (
-    connection: WsConnection,
+    connection: ZenSocketConnection,
     data: Message,
     injections: []
   ) => void;
 
-  export type ErrorHandler = (connection: WsConnection, error: Error) => void;
+  export type ErrorHandler = (
+    connection: ZenSocketConnection,
+    error: Error
+  ) => void;
   export type CloseHandler = (
-    connection: WsConnection,
+    connection: ZenSocketConnection,
     code: number,
     reason: string
   ) => void;

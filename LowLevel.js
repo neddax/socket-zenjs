@@ -1,5 +1,5 @@
 const WS = require("ws");
-const WsConnection = require("./WsConnection");
+const ZenSocketConnection = require("./ZenSocketConnection");
 
 module.exports = class LowLevel {
   constructor() {
@@ -31,7 +31,7 @@ module.exports = class LowLevel {
   }
 
   handleConnection(socket) {
-    const req = new WsConnection(
+    const req = new ZenSocketConnection(
       socket,
       this._onMessage,
       this._onError,

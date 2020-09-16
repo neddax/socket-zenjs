@@ -1,6 +1,6 @@
 const generateUUID = require("./generateUUID");
 
-module.exports = class WsConnection {
+module.exports = class ZenSocketConnection {
   // private _socket: WS;
   // closed: boolean;
 

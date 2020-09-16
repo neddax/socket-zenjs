@@ -5,13 +5,13 @@ export = LowLevel;
 import Router from "./router";
 import { Server } from "http";
 import WS from "ws";
-import WsConnection from "./WsConnection";
+import ZenSocketConnection from "./ZenSocketConnection";
 
 /*~ Write your module's methods and properties in this class */
 declare class LowLevel {
   ws: WS.Server;
-  private _connections: WsConnection[];
-  get getConnections(): WsConnection[];
+  private _connections: ZenSocketConnection[];
+  get getConnections(): ZenSocketConnection[];
 
   private _injections: any[];
   get getInjections(): any[];
@@ -26,17 +26,20 @@ declare class LowLevel {
 
   inject(anything: any): this;
 
-  _onMessage(_: WsConnection, { data, url }: WsConnection.Message): void;
+  _onMessage(
+    _: ZenSocketConnection,
+    { data, url }: ZenSocketConnection.Message
+  ): void;
 
-  _onError(_: WsConnection, error: Error): void;
+  _onError(_: ZenSocketConnection, error: Error): void;
 
-  _onClose(connection: WsConnection, code: number, reason: string): void;
+  _onClose(connection: ZenSocketConnection, code: number, reason: string): void;
 
-  private _onConnection(connection: WsConnection): void;
+  private _onConnection(connection: ZenSocketConnection): void;
 
-  private _removeConnection(connection: WsConnection): void;
+  private _removeConnection(connection: ZenSocketConnection): void;
 
-  private _addConnection(connection: WsConnection): void;
+  private _addConnection(connection: ZenSocketConnection): void;
 
   private handleConnection(socket: WS): void;
 
