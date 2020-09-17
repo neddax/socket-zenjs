@@ -45,8 +45,8 @@ export default class Socket {
     this._socket.on("message", (data) => this._onmessage(data, messageHandler));
   }
 
-  send(status: number, data = "") {
-    if (status && data) {
+  send(status: number = 200, data = "") {
+    if (typeof status === "number") {
       this._socket.send(
         JSON.stringify({
           data: data,
@@ -56,8 +56,6 @@ export default class Socket {
 
       return this;
     }
-
-    console.error("send MUST have truthy a status[1]");
   }
 
   _onConnection(handler: ConnectionHandler) {

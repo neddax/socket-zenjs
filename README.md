@@ -1,6 +1,6 @@
 # socket-zen
 
-A Nodejs + WS framework for websockets.
+A Nodejs + ws framework for websockets.
 
 Just connect to the server under the ws://exampleurl:
 and send data from the front end like:
@@ -19,7 +19,20 @@ ws.onopen = () => {
 };
 ```
 
-Example With base "http" package.
+## abilities
+
+- useable with any nodejs web library or framework
+- before middleware
+- routers
+- global state / injections
+- onConnection handleing
+- url catching
+- query handleing
+- full typescript / typing support
+
+## examples
+
+### Example With base "http" package.
 
 ```ts
 import http from "http";
@@ -40,7 +53,7 @@ const socketServer = new Zenjs()
   .initSocket(server);
 ```
 
-Example with the "express" package
+### Example with the "express" package
 
 ```ts
 import express from "express";
@@ -91,4 +104,22 @@ apiRouter
   .use((connection, req) => console.info('api router hit'));
   .on('/users', (connection, req) => connection.send(200, users))
   //.useRouter(any other router, which will use the base '/api' that this router has as well)
+```
+
+### injections / state
+
+```js
+const server = new Zenjs({ name: "Bob" });
+
+server.on("", (connection, request, { name }) => {
+  // use name here :)
+});
+
+const apiRouter = server
+  .Router("/api")
+  .on("/name", (connection, request, { name }) => {
+    connection.send(200, name);
+  });
+
+server.addRouter(apiRouter);
 ```
