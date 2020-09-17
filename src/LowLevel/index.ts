@@ -17,10 +17,6 @@ export default class LowLevel {
     return this;
   }
 
-  get getConnections() {
-    return this._connections;
-  }
-
   _removeConnection(connection: Socket) {
     this._connections = this._connections.filter((c) => c !== connection);
   }
