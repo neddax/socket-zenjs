@@ -174,7 +174,7 @@ export default class Zenjs<
     return str;
   }
 
-  Router(base: string) {
+  CreateRouter(base: string) {
     return new Router<Injections, SocketState>(base);
   }
 }
