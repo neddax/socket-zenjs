@@ -5,30 +5,39 @@ export interface Message {
   url: string;
   data: any;
 }
-export type ConnectionHandler = (connection: Socket) => void;
+export type ConnectionHandler<State> = (connection: Socket<State>) => void;
 
-export type MessageHandler = (connection: Socket, data: Message) => void;
+export type MessageHandler<State> = (
+  connection: Socket<State>,
+  data: Message
+) => void;
 
-export type ErrorHandler = (connection: Socket, error: Error) => void;
-export type CloseHandler = (
-  connection: Socket,
+export type ErrorHandler<State> = (
+  connection: Socket<State>,
+  error: Error
+) => void;
+export type CloseHandler<State> = (
+  connection: Socket<State>,
   code: number,
   reason: string
 ) => void;
 
-export default class Socket {
+export default class Socket<State extends Record<string, any>> {
   private _socket: WS;
   closed: boolean;
   uuid: string;
   close: () => void;
+  state: State;
 
   constructor(
     socket: WS,
-    messageHandler: MessageHandler,
-    errorHandler: ErrorHandler,
-    closeHandler: CloseHandler,
-    onConnectionHandler: ConnectionHandler
+    messageHandler: MessageHandler<State>,
+    errorHandler: ErrorHandler<State>,
+    closeHandler: CloseHandler<State>,
+    onConnectionHandler: ConnectionHandler<State>,
+    state: State
   ) {
+    this.state = state;
     this.uuid = generateUUID();
     this.closed = false;
     this._socket = socket;
@@ -58,21 +67,29 @@ export default class Socket {
     }
   }
 
-  _onConnection(handler: ConnectionHandler) {
+  _onConnection(handler: ConnectionHandler<State>) {
     handler(this);
   }
 
-  _onerror(err: Error, errorHandler: ErrorHandler) {
+  _onerror(err: Error, errorHandler: ErrorHandler<State>) {
     errorHandler(this, err);
   }
 
-  _onclose(code: number, reason: string, closeHandler: CloseHandler) {
+  _onclose(code: number, reason: string, closeHandler: CloseHandler<State>) {
     closeHandler(this, code, reason);
     this.closed = true;
   }
 
-  _onmessage(data: WS.Data, messageHandler: MessageHandler) {
+  _onmessage(data: WS.Data, messageHandler: MessageHandler<State>) {
     let json: Record<string, any> = {};
+
+    /*
+    
+      {
+        url: '/',
+        data: {},
+      }
+    */
 
     try {
       json = JSON.parse(data.toString());

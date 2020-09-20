@@ -8,17 +8,16 @@ import Socket, {
   Message,
 } from "./Socket";
 import * as http from "http";
-import { throws } from "assert";
 
 const copy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
-export type FinalConnectionHandler<T> = (
-  connection: Socket,
+export type FinalConnectionHandler<T, SocketState> = (
+  connection: Socket<SocketState>,
   injections: T
 ) => void;
 
-export type BeforeMiddleWareHandler<T> = (
-  connection: Socket,
+export type BeforeMiddleWareHandler<T, SocketState> = (
+  connection: Socket<SocketState>,
   request: SocketServerRequest,
   stop: () => void,
   injections: T
@@ -28,25 +27,41 @@ export interface SocketServerRequest extends Message {
   query: querystring.ParsedUrlQuery;
 }
 
-export type FinalMessageHandler<T> = (
-  connection: Socket,
+export type FinalMessageHandler<T, SocketState> = (
+  connection: Socket<SocketState>,
   request: SocketServerRequest,
   injections: T
 ) => void;
 
 export default class Zenjs<
-  Injections extends Record<string, any>
-> extends LowLevel {
+  Injections extends Record<string, any>,
+  SocketState extends Record<string, any>,
+  Handles extends Record<
+    string,
+    (this: Zenjs<Injections, SocketState, Handles>, ...args: any[]) => any
+  >
+> extends LowLevel<SocketState> {
   private _injections: Injections;
   // @ts-ignore This value comes from LowLevel, But we have it here for extended
   // typing
   private _catch: FinalMessageHandler<Injections>;
-  private _routes: Record<string, FinalMessageHandler<Injections>>;
-  private _beforeMiddleWare: BeforeMiddleWareHandler<Injections>[];
+  private _routes: Record<string, FinalMessageHandler<Injections, SocketState>>;
+  private _beforeMiddleWare: BeforeMiddleWareHandler<Injections, SocketState>[];
 
-  constructor(injections: Injections) {
-    super();
+  handles: Handles;
 
+  constructor(
+    injections: Injections,
+    baseSocketState: SocketState,
+    handles: Handles
+  ) {
+    super(baseSocketState);
+
+    for (const key in handles) {
+      handles[key].bind(this);
+    }
+
+    this.handles = handles;
     this._injections = injections;
     this._routes = {};
     this._beforeMiddleWare = [];
@@ -66,29 +81,29 @@ export default class Zenjs<
     return this;
   }
 
-  on(url: string, handle: FinalMessageHandler<Injections>) {
+  on(url: string, handle: FinalMessageHandler<Injections, SocketState>) {
     this._routes[url] = handle;
     return this;
   }
 
-  catch(handle: FinalMessageHandler<Injections>) {
+  catch(handle: FinalMessageHandler<Injections, SocketState>) {
     this._catch = handle;
     return this;
   }
 
-  addRouter(router: Router<Injections>) {
+  addRouter(router: Router<Injections, SocketState>) {
     for (const path in router.routes)
       this._routes[router.base + path] = router.routes[path];
 
     return this;
   }
 
-  use(handle: BeforeMiddleWareHandler<Injections>) {
+  use(handle: BeforeMiddleWareHandler<Injections, SocketState>) {
     this._beforeMiddleWare.push(handle);
     return this;
   }
 
-  _onMessage = (connection: Socket, req: SocketServerRequest) => {
+  _onMessage = (connection: Socket<SocketState>, req: SocketServerRequest) => {
     const copyOfReq = copy(req);
     delete copyOfReq.url;
     delete copyOfReq.data;
@@ -122,17 +137,17 @@ export default class Zenjs<
     }
   };
 
-  onError(handler: ErrorHandler) {
+  onError(handler: ErrorHandler<SocketState>) {
     this._onError = handler;
     return this;
   }
 
-  onClose(handler: CloseHandler) {
+  onClose(handler: CloseHandler<SocketState>) {
     this._onClose = handler;
     return this;
   }
 
-  onConnection(handler: FinalConnectionHandler<Injections>) {
+  onConnection(handler: FinalConnectionHandler<Injections, SocketState>) {
     this._onConnection = (socket) => handler(socket, this._injections);
     return this;
   }
@@ -160,6 +175,6 @@ export default class Zenjs<
   }
 
   Router(base: string) {
-    return new Router<Injections>(base);
+    return new Router<Injections, SocketState>(base);
   }
 }

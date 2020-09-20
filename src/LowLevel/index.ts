@@ -2,36 +2,41 @@ import * as WS from "ws";
 import Socket, { Message } from "../Socket";
 import * as http from "http";
 
-export default class LowLevel {
-  private _connections: Socket[];
+export default class LowLevel<SocketState extends Record<string, any>> {
+  private _connections: Socket<SocketState>[];
   ws: WS.Server | null;
+  baseSocketState: SocketState;
 
-  constructor() {
+  constructor(baseSocketState: SocketState) {
     this._connections = [];
     this.ws = null;
+    this.baseSocketState = baseSocketState;
   }
 
   initLL(server: http.Server) {
     this.ws = new WS.Server({ server });
-    this.ws.on("connection", (socket) => this.handleConnection(socket));
+    this.ws.on("connection", (socket) =>
+      this.handleConnection(socket, this.baseSocketState)
+    );
     return this;
   }
 
-  _removeConnection(connection: Socket) {
+  _removeConnection(connection: Socket<SocketState>) {
     this._connections = this._connections.filter((c) => c !== connection);
   }
 
-  _addConnection(connection: Socket) {
+  _addConnection(connection: Socket<SocketState>) {
     this._connections = this._connections.concat(connection);
   }
 
-  handleConnection(socket: WS) {
-    const req = new Socket(
+  handleConnection(socket: WS, state: SocketState) {
+    const req = new Socket<SocketState>(
       socket,
       this._onMessage,
       this._onError,
       this._onClose,
-      this._onConnection
+      this._onConnection,
+      state
     );
 
     this._addConnection(req);
@@ -54,20 +59,20 @@ export default class LowLevel {
     return this;
   }
 
-  _onConnection(_: Socket) {
+  _onConnection(_: Socket<SocketState>) {
     console.info("Connection made!");
   }
 
-  _onMessage(_: Socket, { data, url }: Message) {
+  _onMessage(_: Socket<SocketState>, { data, url }: Message) {
     console.info(`[${url}]`);
     console.info(data);
   }
 
-  _onError(_: Socket, error: Error) {
+  _onError(_: Socket<SocketState>, error: Error) {
     console.error("ERROR!", error);
   }
 
-  _onClose(connection: Socket, code: number, reason: string) {
+  _onClose(connection: Socket<SocketState>, code: number, reason: string) {
     console.info("CLOSING!");
     console.info(`[code][${code}] Reason\n${reason}`);
   }
