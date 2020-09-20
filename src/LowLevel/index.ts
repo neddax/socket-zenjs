@@ -4,6 +4,10 @@ import * as http from "http";
 
 export default class LowLevel<SocketState extends Record<string, any>> {
   private _connections: Socket<SocketState>[];
+  get connections() {
+    return this._connections;
+  }
+
   ws: WS.Server | null;
   baseSocketState: SocketState;
 
