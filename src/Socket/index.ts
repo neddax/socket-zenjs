@@ -54,7 +54,7 @@ export default class Socket<State extends Record<string, any>> {
     this._socket.on("message", (data) => this._onmessage(data, messageHandler));
   }
 
-  send(status: number = 200, data = "") {
+  async send(status: number = 200, data: any = "") {
     if (typeof status === "number") {
       this._socket.send(
         JSON.stringify({

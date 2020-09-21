@@ -1,6 +1,6 @@
 {
   "name": "socket-zenjs",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "A Express/WS Nodejs framework",
   "main": "index.js",
   "types": "./index.d.ts",

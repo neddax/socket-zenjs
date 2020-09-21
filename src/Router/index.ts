@@ -1,17 +1,28 @@
-import {
+import Zenjs, {
   BeforeMiddleWareHandler,
   FinalMessageHandler,
+  HandlesType,
   SocketServerRequest,
 } from "../index";
 import Socket from "../Socket";
 
 export default class Router<
-  Injections extends Record<string, any>,
-  SocketState
+  Injections,
+  SocketState,
+  State,
+  Handles extends HandlesType<Injections, SocketState, State, Handles>
 > {
   base: string;
-  routes: Record<string, FinalMessageHandler<Injections, SocketState>>;
-  beforeMiddleWare: BeforeMiddleWareHandler<Injections, SocketState>[];
+  routes: Record<
+    string,
+    FinalMessageHandler<Injections, SocketState, State, Handles>
+  >;
+  beforeMiddleWare: BeforeMiddleWareHandler<
+    Injections,
+    SocketState,
+    State,
+    Handles
+  >[];
 
   constructor(base: string) {
     // base url ie: base == /api/v1
@@ -27,28 +38,35 @@ export default class Router<
     this.beforeMiddleWare = [];
   }
 
-  on(url: string, handle: FinalMessageHandler<Injections, SocketState>) {
+  on(
+    url: string,
+    handle: FinalMessageHandler<Injections, SocketState, State, Handles>
+  ) {
     this.routes[url] = this._newRoute(handle);
     return this;
   }
 
-  use(handle: BeforeMiddleWareHandler<Injections, SocketState>) {
+  use(
+    handle: BeforeMiddleWareHandler<Injections, SocketState, State, Handles>
+  ) {
     this.beforeMiddleWare.push(handle);
     return this;
   }
 
-  addRouter(router: Router<Injections, SocketState>) {
+  addRouter(router: Router<Injections, SocketState, State, Handles>) {
     for (const path in router.routes)
       this.routes[router.base + path] = this._newRoute(router.routes[path]);
 
     return this;
   }
 
-  _newRoute(handle: FinalMessageHandler<Injections, SocketState>) {
+  _newRoute(
+    handle: FinalMessageHandler<Injections, SocketState, State, Handles>
+  ) {
     return (
       connection: Socket<SocketState>,
       request: SocketServerRequest,
-      injections: Injections
+      server: Zenjs<Injections, SocketState, State, Handles>
     ) => {
       let dontRespond = false;
 
@@ -59,12 +77,12 @@ export default class Router<
           () => {
             dontRespond = true;
           },
-          injections
+          server
         );
         if (dontRespond) return;
       }
 
-      handle(connection, request, injections);
+      handle(connection, request, server);
     };
   }
 }
