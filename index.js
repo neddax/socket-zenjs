@@ -1,3 +1,1 @@
-import zenjs from "./lib";
-
-module.exports = zenjs;
+module.exports = require("./lib");
