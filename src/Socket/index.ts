@@ -16,6 +16,7 @@ export type ErrorHandler<State> = (
   connection: Socket<State>,
   error: Error
 ) => void;
+
 export type CloseHandler<State> = (
   connection: Socket<State>,
   code: number,

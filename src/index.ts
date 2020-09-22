@@ -16,10 +16,7 @@ export type HandlesType<
   SocketState,
   State,
   Handle extends HandlesType<Injections, SocketState, State, Handle>
-> = Record<
-  string,
-  (server: Zenjs<Injections, SocketState, State, Handle>, ...args: any[]) => any
->;
+> = Record<string, () => {}>;
 
 export type FinalConnectionHandler<
   Injections,
@@ -85,16 +82,32 @@ export default class Zenjs<
   constructor(
     injections: Injections,
     state: State,
-    baseSocketState: SocketState,
-    handles: Handles
+    baseSocketState: SocketState
   ) {
     super(baseSocketState);
 
     this.state = state || {};
-    this.handles = handles || {};
+    this.handles = {} as any;
     this._injections = injections || {};
     this._routes = {};
     this._beforeMiddleWare = [];
+  }
+
+  /**
+   * This method should only be used when you know what you are doing,
+   * as it directly messes with the class itself
+   * @param key used to set a value of the server variable
+   * @param handle
+   */
+  extend(
+    key: string,
+    handle: (
+      this: Zenjs<Injections, SocketState, State, Handles>,
+      ...args: any[]
+    ) => any
+  ) {
+    handle.bind(this);
+    (this as any)[key] = handle;
   }
 
   updateInjection<T extends keyof Injections>(key: T, value: Injections[T]) {
