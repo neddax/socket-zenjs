@@ -106,8 +106,8 @@ export default class Zenjs<
       ...args: any[]
     ) => any
   ) {
-    handle.bind(this);
-    (this as any)[key] = handle;
+    const cb = handle.bind(this);
+    (this as any)[key] = cb;
   }
 
   updateInjection<T extends keyof Injections>(key: T, value: Injections[T]) {
