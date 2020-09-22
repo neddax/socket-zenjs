@@ -3,7 +3,7 @@ import Socket, { Message } from "../Socket";
 import * as http from "http";
 
 export default class LowLevel<SocketState extends Record<string, any>> {
-  private _connections: Socket<SocketState>[];
+  private _connections: Record<string, Socket<SocketState>>;
   get connections() {
     return this._connections;
   }
@@ -12,7 +12,7 @@ export default class LowLevel<SocketState extends Record<string, any>> {
   baseSocketState: SocketState;
 
   constructor(baseSocketState: SocketState) {
-    this._connections = [];
+    this._connections = {};
     this.ws = null;
     this.baseSocketState = baseSocketState;
   }
@@ -26,11 +26,11 @@ export default class LowLevel<SocketState extends Record<string, any>> {
   }
 
   _removeConnection(connection: Socket<SocketState>) {
-    this._connections = this._connections.filter((c) => c !== connection);
+    delete this._connections[connection.uuid];
   }
 
   _addConnection(connection: Socket<SocketState>) {
-    this._connections = this._connections.concat(connection);
+    this._connections[connection.uuid] = connection;
   }
 
   handleConnection(socket: WS, state: SocketState) {
@@ -46,19 +46,20 @@ export default class LowLevel<SocketState extends Record<string, any>> {
     this._addConnection(req);
   }
 
-  sendTo(uuid: string, status: number, data: any) {
-    const index = this._connections.findIndex(({ uuid: id }) => uuid === id);
-    if (index !== -1) {
-      this._connections[index].send(status, data);
+  async sendTo(uuid: string, status: number, data: any) {
+    if (uuid in this._connections) {
+      this._connections[uuid].send(status, data);
     }
 
     return this;
   }
 
-  sendAll(status: number, data: any) {
-    for (const connection of this._connections) {
-      connection.send(status, data);
-    }
+  async sendAll(status: number, data: any) {
+    const connections = Object.values(this.connections);
+
+    await Promise.all(
+      connections.map(async (connection) => connection.send(status, data))
+    );
 
     return this;
   }
